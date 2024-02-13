@@ -3,16 +3,17 @@ import {
   NavigatorScreenOptions,
   RootStack,
   createDefaultScreenGroup,
-  // createOnboardingScreenGroup,
 } from './AppStack';
 import {useIntl} from 'react-intl';
-// import {SecurityContext} from '../context/SecurityContext';
 
 import BootSplash from 'react-native-bootsplash';
 import {useDeviceInfo} from '../hooks/server/deviceInfo';
 import {Loading} from '../sharedComponents/Loading';
 import {createDeviceNamingScreens} from './ScreenGroups/DeviceNamingScreens';
 import {usePrefetchLastKnownLocation} from '../hooks/useLastSavedLocation';
+import {useProjectInviteListener} from '../hooks/useProjectInviteListener';
+import {useBottomSheetModal} from '../sharedComponents/BottomSheetModal';
+import {ProjectInviteBottomSheet} from '../sharedComponents/ProjectInviteBottomSheet';
 
 // import {devExperiments} from '../lib/DevExperiments';
 
@@ -38,6 +39,17 @@ export const AppNavigator = ({permissionAsked}: {permissionAsked: boolean}) => {
   const deviceInfo = useDeviceInfo();
   usePrefetchLastKnownLocation();
 
+  const {isOpen, sheetRef, openSheet, closeSheet} = useBottomSheetModal({
+    openOnMount: false,
+  });
+
+  const {projectInvites, clearInvite, clearAllInvites} =
+    useProjectInviteListener();
+
+  if (projectInvites.length > 0 && !isOpen) {
+    openSheet();
+  }
+
   if (permissionAsked && !deviceInfo.isPending) {
     BootSplash.hide();
   }
@@ -56,6 +68,15 @@ export const AppNavigator = ({permissionAsked}: {permissionAsked: boolean}) => {
           ? createDefaultScreenGroup(formatMessage)
           : createDeviceNamingScreens(formatMessage)}
       </RootStack.Navigator>
+
+      <ProjectInviteBottomSheet
+        isOpen={isOpen}
+        sheetRef={sheetRef}
+        closeSheet={closeSheet}
+        clearInvite={clearInvite}
+        invites={projectInvites}
+        clearAllInvites={clearAllInvites}
+      />
     </React.Suspense>
   );
 };

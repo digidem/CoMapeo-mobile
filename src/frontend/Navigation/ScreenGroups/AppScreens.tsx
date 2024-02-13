@@ -26,10 +26,6 @@ import {ProjectSettings} from '../../screens/Settings/ProjectSettings';
 import {CoordinateFormat} from '../../screens/Settings/AppSettings/CoordinateFormat';
 import {CustomHeaderLeftClose} from '../../sharedComponents/CustomHeaderLeftClose';
 import {SaveButton} from '../../screens/ObservationEdit/SaveButton';
-import {CreateOrJoinProject} from '../../screens/Settings/CreateOrJoinProject';
-import {CreateProject} from '../../screens/Settings/CreateOrJoinProject/CreateProject';
-import {ProjectCreated} from '../../screens/Settings/CreateOrJoinProject/CreateProject/ProjectCreated';
-import {JoinExistingProject} from '../../screens/Settings/CreateOrJoinProject/JoinExistingProject';
 import {YourTeam} from '../../screens/Settings/ProjectSettings/YourTeam';
 import {SelectDevice} from '../../screens/Settings/ProjectSettings/YourTeam/SelectDevice';
 import {DeviceRole, DeviceType} from '../../sharedTypes';
@@ -37,6 +33,10 @@ import {SelectInviteeRole} from '../../screens/Settings/ProjectSettings/YourTeam
 import {ReviewInvitation} from '../../screens/Settings/ProjectSettings/YourTeam/ReviewAndInvite/ReviewInvitation';
 import {InviteAccepted} from '../../screens/Settings/ProjectSettings/YourTeam/InviteAccepted';
 import {ReviewAndInvite} from '../../screens/Settings/ProjectSettings/YourTeam/ReviewAndInvite';
+import {CreateOrJoinProject} from '../../screens/Settings/CreateOrJoinProject';
+import {CreateProject} from '../../screens/Settings/CreateOrJoinProject/CreateProject';
+import {ProjectCreated} from '../../screens/Settings/CreateOrJoinProject/CreateProject/ProjectCreated';
+import {JoinExistingProject} from '../../screens/Settings/CreateOrJoinProject/JoinExistingProject';
 
 export type HomeTabsList = {
   Map: undefined;
