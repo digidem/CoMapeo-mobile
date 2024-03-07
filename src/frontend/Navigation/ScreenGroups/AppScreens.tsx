@@ -73,7 +73,7 @@ export type AppList = {
   Observation: {observationId: string};
   ObservationEdit: {observationId?: string} | undefined;
   ManualGpsScreen: undefined;
-  ObservationDetails: {question: number};
+  ObservationFields: {question: number};
   LeaveProjectScreen: undefined;
   AlreadyOnProj: undefined;
   AddToProjectScreen: undefined;
