@@ -1,56 +1,34 @@
 import * as React from 'react';
+
+import {useSessionInvites} from '../../contexts/SessionInvitesContext';
 import {BottomSheetModal, useBottomSheetModal} from '../BottomSheetModal';
-import {
-  useAcceptInvite,
-  usePendingInvites,
-  useRejectInvite,
-} from '../../hooks/server/invites';
-import {useProjectInvitesListener} from '../../hooks/useProjectInvitesListener';
-import {NewInviteBottomSheetContent} from './NewInviteBottomSheetContent';
-import {InviteSuccessBottomSheetContent} from './InviteSuccessBottomSheetContent';
-import {InviteCanceledBottomSheetContent} from './InviteCanceledBottomSheetContent';
+import {InviteBottomSheetContent} from './InviteBottomSheetContent';
 
 export const ProjectInviteBottomSheet = ({
   enabledForCurrentScreen,
 }: {
   enabledForCurrentScreen: boolean;
 }) => {
+  const sessionInvites = useSessionInvites();
+
+  const [currentInviteId, setCurrentInviteId] = React.useState(
+    () =>
+      sessionInvites.find(({status}) => status === 'pending')?.invite
+        .inviteId || null,
+  );
+
   const {sheetRef, isOpen, closeSheet, openSheet} = useBottomSheetModal({
     openOnMount: false,
   });
-  const invites = usePendingInvites().data.sort(
-    (a, b) => a.receivedAt - b.receivedAt,
-  );
-  const invite = invites[0];
-  const {currentInviteCanceled, resetCacheAndClearCanceled} =
-    useProjectInvitesListener({
-      inviteId: invite?.inviteId,
-      bottomSheetIsOpen: isOpen,
-    });
-  const accept = useAcceptInvite(invite?.projectPublicId);
-  const reject = useRejectInvite();
 
-  if (invite && !isOpen && enabledForCurrentScreen) {
+  const showableInvite = currentInviteId
+    ? sessionInvites.find(
+        ({invite: {inviteId}}) => inviteId === currentInviteId,
+      )
+    : sessionInvites.find(({status}) => status === 'pending');
+
+  if (showableInvite && !isOpen && enabledForCurrentScreen) {
     openSheet();
-  }
-
-  function handleReject() {
-    if (invite) {
-      reject.mutate(invite, {
-        onSuccess: () => {
-          if (invites.length <= 1) {
-            closeSheet();
-          }
-        },
-      });
-    }
-  }
-
-  function handleCanceledInvite() {
-    resetCacheAndClearCanceled();
-    if (invites.length <= 1) {
-      closeSheet();
-    }
   }
 
   return (
@@ -58,27 +36,13 @@ export const ProjectInviteBottomSheet = ({
       ref={sheetRef}
       isOpen={isOpen}
       onDismiss={() => {
-        accept.reset();
-        reject.reset();
+        setCurrentInviteId(null);
       }}>
-      {currentInviteCanceled ? (
-        <InviteCanceledBottomSheetContent
-          handleClose={handleCanceledInvite}
-          projectName={invite?.projectName}
-        />
-      ) : !accept.isSuccess ? (
-        <NewInviteBottomSheetContent
-          handleAccept={() => {
-            if (invite) accept.mutate(invite);
-          }}
-          isLoading={accept.isPending || reject.isPending}
-          handleReject={handleReject}
-          projectName={invite?.projectName}
-        />
-      ) : (
-        <InviteSuccessBottomSheetContent
-          closeSheet={closeSheet}
-          projectName={invite?.projectName}
+      {showableInvite && (
+        <InviteBottomSheetContent
+          sessionInvite={showableInvite}
+          totalSessionInvites={sessionInvites.length}
+          onClose={closeSheet}
         />
       )}
     </BottomSheetModal>

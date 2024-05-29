@@ -4,11 +4,12 @@ import {
 } from '@react-navigation/native';
 import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
+
 import {DrawerNavigator} from './Navigation/Drawer';
-import {ProjectInviteBottomSheet} from './sharedComponents/ProjectInviteBottomSheet';
 import {Loading} from './sharedComponents/Loading';
 import {AppStackParamsList} from './sharedTypes/navigation';
 import {EDITING_SCREEN_NAMES} from './constants';
+import {ProjectInviteBottomSheet} from './sharedComponents/ProjectInviteBottomSheet';
 
 export const rootNavigationRef =
   createNavigationContainerRef<AppStackParamsList>();
