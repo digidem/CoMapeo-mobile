@@ -27,7 +27,9 @@ export const ObservationEdit: NativeNavigationComponent<'ObservationEdit'> & {
   editTitle: MessageDescriptor;
 } = ({navigation}) => {
   const [error, setError] = React.useState<Error | null>(null);
-  const {observationId} = usePersistedDraftObservation(store => store);
+  const observationId = usePersistedDraftObservation(
+    store => store.observationId,
+  );
   const isNew = !observationId;
 
   React.useEffect(() => {
@@ -44,7 +46,7 @@ export const ObservationEdit: NativeNavigationComponent<'ObservationEdit'> & {
         <PresetAndLocationHeader isNew={isNew} />
         <DescriptionField />
       </ScrollView>
-      <ThumbnailAndActionTab navigation={navigation} />
+      {/* <ThumbnailAndActionTab navigation={navigation} /> */}
       <ErrorBottomSheet error={error} clearError={() => setError(null)} />
     </View>
   );

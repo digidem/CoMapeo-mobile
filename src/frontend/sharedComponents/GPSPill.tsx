@@ -2,13 +2,12 @@ import React, {FC, useMemo} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Text} from './Text';
 import {ParamListBase, useIsFocused} from '@react-navigation/native';
-import {useLocationProviderStatus} from '../hooks/useLocationProviderStatus';
 import {getLocationStatus} from '../lib/utils';
 import {defineMessages, useIntl} from 'react-intl';
 import {GpsIcon} from './icons';
-import {useSharedLocationContext} from '../contexts/SharedLocationContext';
 import {BLACK, WHITE} from '../lib/styles';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {useLocation} from '../hooks/useLocation';
 
 const m = defineMessages({
   noGps: {
@@ -28,33 +27,21 @@ interface GPSPill {
 export const GPSPill: FC<GPSPill> = ({navigation}) => {
   const isFocused = useIsFocused();
   const {formatMessage: t} = useIntl();
-  const {locationState, fgPermissions} = useSharedLocationContext();
-  const locationProviderStatus = useLocationProviderStatus();
+  const locationState = useLocation();
 
   const precision = locationState?.location?.coords.accuracy;
 
-  const status = useMemo(() => {
-    const isError = !!locationState.error || !fgPermissions;
+  const status = getLocationStatus({locationState});
 
-    return isError
-      ? 'error'
-      : getLocationStatus({
-          location: locationState.location,
-          providerStatus: locationProviderStatus,
-        });
-  }, [
-    locationProviderStatus,
-    locationState.error,
-    locationState.location,
-    fgPermissions,
-  ]);
-
-  const text = useMemo(() => {
-    if (status === 'error') return t(m.noGps);
-    else if (status === 'searching' || typeof precision === 'undefined') {
-      return t(m.searching);
-    } else return `± ${Math.round(precision!)} m`;
-  }, [precision, status, t]);
+  const text = useMemo(
+    () =>
+      status === 'error'
+        ? t(m.noGps)
+        : status === 'searching'
+          ? t(m.searching)
+          : `± ${Math.round(precision!)} m`,
+    [precision, status, t],
+  );
 
   return (
     <TouchableOpacity

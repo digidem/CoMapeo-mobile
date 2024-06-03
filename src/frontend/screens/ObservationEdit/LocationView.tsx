@@ -1,14 +1,14 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {FormattedMessage, defineMessages} from 'react-intl';
 import {View, Text, StyleSheet} from 'react-native';
 import Location from '../../images/Location.svg';
 import {BLACK} from '../../lib/styles';
 
-import {useMostAccurateLocationForObservation} from './useMostAccurateLocationForObservation';
 import {FormattedCoords} from '../../sharedComponents/FormattedData';
 import {usePersistedDraftObservation} from '../../hooks/persistedState/usePersistedDraftObservation';
 import {usePersistedSettings} from '../../hooks/persistedState/usePersistedSettings';
-import {Divider} from '../../sharedComponents/Divider';
+import {useLocation} from '../../hooks/useLocation';
+import {useDraftObservation} from '../../hooks/useDraftObservation';
 
 const m = defineMessages({
   searching: {
@@ -19,66 +19,95 @@ const m = defineMessages({
 });
 
 export const LocationView = () => {
-  const liveLocation = useMostAccurateLocationForObservation();
-  const observationValue = usePersistedDraftObservation(
-    observationValueSelector,
-  );
-  const coordinateFormat = usePersistedSettings(coordinateFormatSelector);
+  const observationValue = usePersistedDraftObservation(store => store.value);
 
-  const coordinateInfo = observationValue?.metadata.manualLocation
-    ? {
-        lat: observationValue.lat,
-        lon: observationValue.lon,
-        accuracy: liveLocation?.coords?.accuracy,
-      }
-    : {
-        lat: liveLocation?.coords?.latitude,
-        lon: liveLocation?.coords?.longitude,
-        accuracy: liveLocation?.coords?.accuracy,
-      };
-
-  return (
-    <>
-      <Divider />
-      <View style={styles.locationContainer}>
-        {coordinateInfo.lat === undefined ||
-        coordinateInfo.lon === undefined ? (
-          <Text>
-            <FormattedMessage {...m.searching} />
-          </Text>
-        ) : (
-          <React.Fragment>
-            <Location style={{marginRight: 10}} />
-            <Text style={styles.locationText}>
-              <FormattedCoords
-                format={coordinateFormat}
-                lat={coordinateInfo.lat}
-                lon={coordinateInfo.lon}
-              />
-            </Text>
-            {coordinateInfo.accuracy === undefined ? null : (
-              <Text style={styles.accuracy}>
-                {' ±' + coordinateInfo.accuracy.toFixed(2) + 'm'}
-              </Text>
-            )}
-          </React.Fragment>
-        )}
-      </View>
-    </>
+  return observationValue?.metadata.manualLocation ? (
+    <LocationViewManualPosition />
+  ) : (
+    <LocationViewUpdatePosition />
   );
 };
 
-function observationValueSelector(
-  state: Parameters<Parameters<typeof usePersistedDraftObservation>[0]>[0],
-) {
-  return state.value;
-}
+const LocationViewManualPosition = () => {
+  const observationValue = usePersistedDraftObservation(store => store.value);
+  return (
+    <LocationViewInner
+      lat={observationValue?.lat}
+      lon={observationValue?.lon}
+      accuracy={null}
+    />
+  );
+};
 
-function coordinateFormatSelector(
-  state: Parameters<Parameters<typeof usePersistedSettings>[0]>[0],
-) {
-  return state.coordinateFormat;
-}
+const LocationViewUpdatePosition = () => {
+  const observationValue = usePersistedDraftObservation(store => store.value);
+  //only update the location if the accuracy increases OR the user has moved outside of the accuracy's radius of uncertainty.
+  const {location} = useLocation(
+    ({accuracy}) => accuracy === 'better' || accuracy === 'newBounds',
+  );
+  const {updateObservationPosition} = useDraftObservation();
+
+  useEffect(() => {
+    const newCoord = !location
+      ? undefined
+      : Object.entries(location.coords).map(
+          ([key, val]) => [key, val === null ? undefined : val] as const,
+        );
+
+    updateObservationPosition({
+      position: {
+        mocked: false,
+        coords: !newCoord ? undefined : Object.fromEntries(newCoord),
+        timestamp: location?.timestamp.toString(),
+      },
+      manualLocation: false,
+    });
+  }, [location, updateObservationPosition]);
+
+  return (
+    <LocationViewInner
+      lat={observationValue?.lat}
+      lon={observationValue?.lon}
+      accuracy={location?.coords.accuracy}
+    />
+  );
+};
+
+const LocationViewInner = ({
+  lat,
+  lon,
+  accuracy,
+}: {
+  lat: number | undefined;
+  lon: number | undefined;
+  accuracy: number | undefined | null;
+}) => {
+  const coordinateFormat = usePersistedSettings(
+    store => store.coordinateFormat,
+  );
+
+  return (
+    <View style={styles.locationContainer}>
+      {lat === undefined || lon === undefined ? (
+        <Text>
+          <FormattedMessage {...m.searching} />
+        </Text>
+      ) : (
+        <React.Fragment>
+          <Location style={{marginRight: 10}} />
+          <Text style={styles.locationText}>
+            <FormattedCoords format={coordinateFormat} lat={lat} lon={lon} />
+          </Text>
+          {typeof accuracy === 'number' && (
+            <Text style={styles.accuracy}>
+              {' ±' + accuracy.toFixed(2) + 'm'}
+            </Text>
+          )}
+        </React.Fragment>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   locationContainer: {
