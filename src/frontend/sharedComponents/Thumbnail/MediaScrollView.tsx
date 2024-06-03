@@ -12,7 +12,7 @@ const minSize = 150;
 
 interface MediaScrollView {
   photos: (Partial<Photo> | undefined)[];
-  audioRecordings: any[];
+  audioRecordings: (AudioRecording | undefined)[];
   observationId?: string;
 }
 
@@ -56,6 +56,8 @@ export const MediaScrollView: FC<MediaScrollView> = props => {
       screen: 'Playback',
       params: {
         recordingUri: recording.uri,
+        observationId: recording.observationId,
+        attachmentId: recording.attachmentId,
         previewOnly: true,
       },
     });
