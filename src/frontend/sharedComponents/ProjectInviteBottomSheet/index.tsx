@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {View} from 'react-native';
 
 import {useSessionInvites} from '../../contexts/SessionInvitesContext';
 import {BottomSheetModal, useBottomSheetModal} from '../BottomSheetModal';
@@ -38,12 +39,14 @@ export const ProjectInviteBottomSheet = ({
       onDismiss={() => {
         setCurrentInviteId(null);
       }}>
-      {showableInvite && (
+      {showableInvite ? (
         <InviteBottomSheetContent
           sessionInvite={showableInvite}
           totalSessionInvites={sessionInvites.length}
           onClose={closeSheet}
         />
+      ) : (
+        <View style={{height: 100}} />
       )}
     </BottomSheetModal>
   );
