@@ -89,7 +89,6 @@ export const BottomSheetModal = React.forwardRef<RNBottomSheetModal, Props>(
             ? {borderRadius: 0}
             : {borderColor: DARK_GREY, borderWidth: 1},
         ]}
-        onDismiss={onDismiss}
         backdropComponent={DefaultBackdrop}
         onDismiss={onDismiss}
         enableContentPanningGesture={false}

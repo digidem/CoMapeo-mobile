@@ -22,12 +22,24 @@ export const ProjectInviteBottomSheet = ({
     openOnMount: false,
   });
 
+  if (!currentInviteId) {
+    const nextPending = sessionInvites.find(({status}) => status === 'pending');
+    if (nextPending) {
+      setCurrentInviteId(nextPending.invite.inviteId);
+    }
+  }
+
   const showableInvite = currentInviteId
     ? sessionInvites.find(
         ({invite: {inviteId}}) => inviteId === currentInviteId,
       )
-    : sessionInvites.find(({status}) => status === 'pending');
+    : null;
 
+  // TODO: Causing issues in the following sequence:
+  // 1. Receive invite
+  // 2. Reject
+  // 3. Receive
+  // Expected: sheet opens up again
   if (showableInvite && !isOpen && enabledForCurrentScreen) {
     openSheet();
   }

@@ -2,7 +2,6 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 
 import {useApi} from '../../contexts/ApiContext';
 import {useActiveProject} from '../../contexts/ActiveProjectContext';
-import {usePersistedProjectId} from '../persistedState/usePersistedProjectId';
 import {ALL_PROJECTS_KEY} from './projects';
 
 export const INVITE_KEY = 'pending_invites';
@@ -17,12 +16,9 @@ export function usePendingInvites() {
   });
 }
 
-export function useAcceptInvite(projectId: string) {
+export function useAcceptInvite() {
   const mapeoApi = useApi();
   const queryClient = useQueryClient();
-  const switchActiveProject = usePersistedProjectId(
-    state => state.setProjectId,
-  );
 
   return useMutation({
     mutationFn: async ({inviteId}: {inviteId: string}) => {
@@ -30,19 +26,12 @@ export function useAcceptInvite(projectId: string) {
       return mapeoApi.invite.accept({inviteId});
     },
     onSuccess: () => {
-      // This is a workaround. There is a race condition where the project in not available when the invite is accepted. This is temporary and is currently being worked on.
-      setTimeout(() => {
-        Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: [INVITE_KEY],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: [ALL_PROJECTS_KEY],
-          }),
-        ]).then(() => {
-          switchActiveProject(projectId);
-        });
-      }, 5000);
+      queryClient.invalidateQueries({
+        queryKey: [INVITE_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [ALL_PROJECTS_KEY],
+      });
     },
   });
 }
@@ -51,8 +40,8 @@ export function useRejectInvite() {
   const mapeoApi = useApi();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({inviteId}: {inviteId: string}) => {
-      mapeoApi.invite.reject({inviteId});
+    mutationFn: ({inviteId}: {inviteId: string}) => {
+      return mapeoApi.invite.reject({inviteId});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: [INVITE_KEY]});
