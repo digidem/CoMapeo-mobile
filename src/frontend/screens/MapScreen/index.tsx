@@ -9,7 +9,7 @@ import {
 } from '../../sharedComponents/icons';
 
 import {View, StyleSheet} from 'react-native';
-import {ObservationMapLayer} from './ObsevationMapLayer';
+import {ObservationMapLayer} from './ObservationMapLayer';
 import {AddButton} from '../../sharedComponents/AddButton';
 import {useNavigationFromHomeTabs} from '../../hooks/useNavigationWithTypes';
 import {useDraftObservation} from '../../hooks/useDraftObservation';
@@ -19,7 +19,7 @@ import {getCoords} from '../../hooks/useLocation';
 import {useLastKnownLocation} from '../../hooks/useLastSavedLocation';
 import {useLocationProviderStatus} from '../../hooks/useLocationProviderStatus';
 import {GPSPermissionsModal} from './GPSPermissions/GPSPermissionsModal';
-import {TrackPathLayer} from './track/TrackPathLayer';
+import {TrackPathLayer} from './path/TrackPathLayer';
 import {UserLocation} from './UserLocation';
 import {useSharedLocationContext} from '../../contexts/SharedLocationContext';
 import {useMapStyleUrl} from '../../hooks/server/mapStyleUrl';

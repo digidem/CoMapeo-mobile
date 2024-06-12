@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {defineMessages, useIntl} from 'react-intl';
 import {StyleSheet, TextInput} from 'react-native';
-import {usePersistedTrack} from '../../hooks/persistedState/usePersistedTrack';
 
 const m = defineMessages({
   descriptionPlaceholder: {
@@ -11,18 +10,26 @@ const m = defineMessages({
   },
 });
 
-export const TrackDescriptionField: React.FC = () => {
+interface DescriptionField {
+  description: string;
+  setDescription?: React.Dispatch<React.SetStateAction<string>> | undefined;
+}
+
+export const TrackEditDescriptionField: React.FC<DescriptionField> = ({
+  description,
+  setDescription,
+}) => {
   const {formatMessage: t} = useIntl();
-  const description = usePersistedTrack(state => state.description);
-  const setDescription = usePersistedTrack(state => state.setDescription);
+
   return (
     <TextInput
       style={styles.textInput}
       onChangeText={setDescription}
-      placeholder={t(m.descriptionPlaceholder)}
+      placeholder={setDescription && t(m.descriptionPlaceholder)}
       placeholderTextColor="silver"
       underlineColorAndroid="transparent"
       multiline
+      editable={!!setDescription}
       value={description}
       scrollEnabled={false}
       textContentType="none"
@@ -34,9 +41,9 @@ export const TrackDescriptionField: React.FC = () => {
 const styles = StyleSheet.create({
   textInput: {
     flex: 1,
-    paddingVertical: 20,
     minHeight: 100,
     fontSize: 20,
+    marginVertical: 10,
     color: 'black',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',

@@ -51,10 +51,14 @@ import {
   createNavigationOptions as createManualGpsNavigationOptions,
 } from '../../screens/ManualGpsScreen';
 import {HomeTabs} from '../Tab';
-import {SaveTrackScreen} from '../../screens/SaveTrack/SaveTrackScreen';
 import {ObservationFields} from '../../screens/ObservationFields';
-import {LIGHT_GREY, WHITE} from '../../lib/styles';
+import {DARK_GREY, LIGHT_GREY, WHITE} from '../../lib/styles';
 import {LanguageSettings} from '../../screens/Settings/AppSettings/LanguageSettings';
+import {
+  createTrackNavigationOptions,
+  TrackScreen,
+} from '../../screens/Track/TrackScreen';
+import {TrackEditScreen} from '../../screens/TrackEdit/TrackEditScreen';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {PhotoPreviewModal} from '../../screens/PhotoPreviewModal.tsx';
 import {CustomHeaderLeft} from '../../sharedComponents/CustomHeaderLeft.tsx';
@@ -242,7 +246,24 @@ export const createDefaultScreenGroup = ({
       component={LocationInfoScreen}
       options={createLocationInfoNavOptions({intl})}
     />
-    <RootStack.Screen name="SaveTrack" component={SaveTrackScreen} />
+    <RootStack.Screen
+      name="TrackEdit"
+      component={TrackEditScreen}
+      options={({route}) => {
+        const trackId = route.params?.trackId;
+        return {
+          headerTitle: trackId
+            ? intl(TrackEditScreen.editTitle)
+            : intl(TrackEditScreen.navTitle),
+          headerTintColor: DARK_GREY,
+        };
+      }}
+    />
+    <RootStack.Screen
+      name="Track"
+      component={TrackScreen}
+      options={createTrackNavigationOptions({intl})}
+    />
     <RootStack.Screen
       name="InviteDeclined"
       component={InviteDeclined}

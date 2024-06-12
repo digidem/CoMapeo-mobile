@@ -1,16 +1,18 @@
 import {Image, Pressable, StyleSheet} from 'react-native';
 import React, {FC} from 'react';
 import {DateTime} from 'luxon';
-import {useCreateTrack} from '../../hooks/server/track';
-import {usePersistedTrack} from '../../hooks/persistedState/usePersistedTrack';
-import {useNavigationFromRoot} from '../../hooks/useNavigationWithTypes';
-import {CommonActions} from '@react-navigation/native';
+import {useCreateTrack} from '../../hooks/server/track.ts';
+import {useNavigationFromHomeTabs} from '../../hooks/useNavigationWithTypes';
+import {usePersistedTrack} from '../../hooks/persistedState/usePersistedTrack.ts';
 
-export const SaveTrackButton: FC = () => {
+interface SaveTrackButton {
+  description: string;
+}
+
+export const SaveTrackButton: FC<SaveTrackButton> = ({description}) => {
   const saveTrack = useCreateTrack();
-  const navigation = useNavigationFromRoot();
+  const navigation = useNavigationFromHomeTabs();
   const currentTrack = usePersistedTrack();
-  const description = usePersistedTrack(state => state.description);
 
   const handleSaveClick = () => {
     saveTrack.mutate(
@@ -37,13 +39,8 @@ export const SaveTrackButton: FC = () => {
       },
       {
         onSuccess: () => {
+          navigation.navigate('Home', {screen: 'Map'});
           currentTrack.clearCurrentTrack();
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: 'Home', params: {screen: 'Map'}}],
-            }),
-          );
         },
       },
     );
