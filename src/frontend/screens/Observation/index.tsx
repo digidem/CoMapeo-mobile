@@ -61,14 +61,19 @@ export const ObservationScreen: NativeNavigationComponent<'Observation'> = ({
   const {lat, lon, createdBy} = observation;
   const isMine = deviceId === createdBy;
 
-  // Currently only show photo attachments
   const photoAttachments = observation.attachments.filter(
     attachment => attachment.type === 'photo',
   );
-  const attachmentUrls = useAttachmentUrlQueries(
+  const recordings = observation.attachments.filter(
+    attachment => attachment.type === 'audio',
+  );
+  const photoAttachmentsUrls = useAttachmentUrlQueries(
     photoAttachments,
     'thumbnail',
   ).map(query => query.data);
+  const audioUrls = useAttachmentUrlQueries(recordings, 'original').map(
+    query => query.data,
+  );
 
   return (
     <ScrollView
@@ -93,9 +98,18 @@ export const ObservationScreen: NativeNavigationComponent<'Observation'> = ({
               <Text style={styles.textNotes}>{observation.tags.notes}</Text>
             </View>
           ) : null}
-          {attachmentUrls.length > 0 && (
+          {(photoAttachmentsUrls.length > 0 || recordings.length > 0) && (
             <MediaScrollView
-              photos={attachmentUrls.map(attachmentData => {
+              audioRecordings={audioUrls.map(attachmentData => {
+                return !attachmentData
+                  ? undefined
+                  : {
+                      uri: attachmentData.url,
+                      createdAt: 0,
+                      duration: 0,
+                    };
+              })}
+              photos={photoAttachmentsUrls.map(attachmentData => {
                 return !attachmentData
                   ? undefined
                   : {
@@ -104,7 +118,6 @@ export const ObservationScreen: NativeNavigationComponent<'Observation'> = ({
                     };
               })}
               observationId={observationId}
-              audioRecordings={[]}
             />
           )}
         </View>

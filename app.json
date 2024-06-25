@@ -44,13 +44,14 @@
           "organization": "awana-digital"
         }
       ],
+      ["./expo-config-plugins/removeExpoInputStyles.js"],
+      ["./expo-config-plugins/addShareIntents.js"],
       [
         "expo-font",
         {
           "fonts": ["./public/Rubik-Regular.ttf", "./public/Rubik-Medium.ttf"]
         }
-      ],
-      ["./expo-config-plugins/removeExpoInputStyles.js"]
+      ]
     ],
     "android": {
       "versionCode": 1,

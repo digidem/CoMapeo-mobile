@@ -1,22 +1,15 @@
-import React, {FC, useCallback, useEffect} from 'react';
-import {View, Text, StyleSheet, Linking} from 'react-native';
 import {defineMessages, useIntl} from 'react-intl';
 import {BottomSheetModalMethods} from '@gorhom/bottom-sheet/lib/typescript/types';
 import AudioPermission from '../images/observationEdit/AudioPermission.svg';
 import {BLACK, COMAPEO_BLUE, WHITE} from '../lib/styles';
 import {BottomSheetModal} from './BottomSheetModal';
 import {Button} from './Button';
-import {Audio} from 'expo-av';
 import {useNavigationFromRoot} from '../hooks/useNavigationWithTypes';
-import {PermissionStatus} from 'expo-av/build/Audio';
 
-const handleRequestPermissions = (): void => {
-  Audio.requestPermissionsAsync().catch(() => {});
-};
-
-const handleOpenSettings = () => {
-  Linking.openSettings();
-};
+import {Audio} from 'expo-av';
+import {Linking, StyleSheet, Text, View} from 'react-native';
+import React, {FC, useCallback, useEffect} from 'react';
+import {PermissionStatus} from 'expo-av/build/Audio/Recording';
 
 interface PermissionAudio {
   sheetRef: React.RefObject<BottomSheetModalMethods>;
@@ -32,14 +25,21 @@ export const PermissionAudio: FC<PermissionAudio> = props => {
 
   const handlePermissionGranted = useCallback(() => {
     closeSheet();
-    navigation.navigate('Home', {screen: 'Map'});
+    navigation.navigate('Audio', {screen: 'PrepareRecording'});
   }, [closeSheet, navigation]);
 
   const isPermissionGranted = Boolean(permissionResponse?.granted);
 
+  const handleRequestPermissions = (): void => {
+    Audio.requestPermissionsAsync().catch(() => {});
+  };
+  const handleOpenSettings = () => {
+    Linking.openSettings();
+  };
+
   useEffect(() => {
-    if (isPermissionGranted) handlePermissionGranted();
-  }, [isPermissionGranted, handlePermissionGranted]);
+    if (isPermissionGranted && isOpen) handlePermissionGranted();
+  }, [isOpen, isPermissionGranted, handlePermissionGranted]);
 
   let onPressActionButton: () => void;
   let actionButtonText: string;

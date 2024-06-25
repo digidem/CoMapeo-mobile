@@ -55,6 +55,8 @@ import {SaveTrackScreen} from '../../screens/SaveTrack/SaveTrackScreen';
 import {ObservationFields} from '../../screens/ObservationFields';
 import {LIGHT_GREY, WHITE} from '../../lib/styles';
 import {LanguageSettings} from '../../screens/Settings/AppSettings/LanguageSettings';
+import {AudioStack} from './AudioStack.tsx';
+import {AudioRecordingContextProvider} from '../../contexts/AudioRecordingContext.tsx';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {PhotoPreviewModal} from '../../screens/PhotoPreviewModal.tsx';
 import {CustomHeaderLeft} from '../../sharedComponents/CustomHeaderLeft.tsx';
@@ -268,6 +270,15 @@ export const createDefaultScreenGroup = ({
       name="LanguageSettings"
       component={LanguageSettings}
       options={{headerTitle: intl(LanguageSettings.navTitle)}}
+    />
+    <RootStack.Screen
+      name="Audio"
+      options={{headerShown: false}}
+      children={() => (
+        <AudioRecordingContextProvider>
+          <AudioStack />
+        </AudioRecordingContextProvider>
+      )}
     />
   </RootStack.Group>
 );

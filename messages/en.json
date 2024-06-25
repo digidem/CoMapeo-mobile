@@ -25,6 +25,51 @@
     "description": "Title of dialog that shows when cancelling a new observation",
     "message": "Discard observation?"
   },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.audioRecording": {
+    "message": "Audio Recording"
+  },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.cancelButtonText": {
+    "message": "Cancel"
+  },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.deleteButtonText": {
+    "message": "Delete"
+  },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.deleteDescription": {
+    "message": "Your <bold>{audioRecording}</bold> will be permanently deleted. This cannot be undone."
+  },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.deleteTitle": {
+    "message": "Delete?"
+  },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.successDescription": {
+    "message": "Your <bold>{audioRecording}</bold> was added."
+  },
+  "AudioPlaybackScreen.DeleteAudioRecordingModal.successTitle": {
+    "message": "Success!"
+  },
+  "AudioPlaybackScreen.ShareAudioRecording.Options.messages": {
+    "message": "Messages"
+  },
+  "AudioPlaybackScreen.ShareAudioRecording.Options.more": {
+    "message": "More"
+  },
+  "AudioPlaybackScreen.ShareAudioRecording.Options.whatsApp": {
+    "message": "WhatsApp"
+  },
+  "AudioPlaybackScreen.ShareAudioRecording.Share.title": {
+    "message": "Audio recording"
+  },
+  "AudioPlaybackScreen.ShareAudioRecording.title": {
+    "message": "Share via"
+  },
+  "AudioPlaybackScreen.SuccessAudioRecordingModal.audioRecording": {
+    "message": "Audio Recording"
+  },
+  "AudioPlaybackScreen.SuccessAudioRecordingModal.recordAnother": {
+    "message": "Record Another"
+  },
+  "AudioPlaybackScreen.SuccessAudioRecordingModal.returnToEditor": {
+    "message": "Return to Editor"
+  },
   "Modal.DiscardTrack.description": {
     "message": "Your Track will not be saved. This cannot be undone."
   },
@@ -249,6 +294,15 @@
   },
   "screens.AppPasscode.TurnOffPasscode.usePasscode": {
     "message": "Use App Passcode"
+  },
+  "screens.Audio.PrepareRecording.defaultTimerState": {
+    "message": "00:00"
+  },
+  "screens.Audio.PrepareRecording.subTimerMessage": {
+    "message": "Record up to 5 minutes"
+  },
+  "screens.Audio.Recording.timeLeft": {
+    "message": "Less than {minutes} minutes left"
   },
   "screens.AudioPermission.Button.allow": {
     "description": "Screen button text for allow the audio permission",

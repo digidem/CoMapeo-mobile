@@ -1,16 +1,12 @@
 import {Observation} from '@mapeo/schema';
 import {BlobVariant} from '@mapeo/core/dist/types';
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  UseQueryOptions,
-} from '@tanstack/react-query';
+import {useMutation, useQueries, useQuery} from '@tanstack/react-query';
 import {SetRequired} from 'type-fest';
 import {URL} from 'react-native-url-polyfill';
 
 import {useActiveProject} from '../../contexts/ActiveProjectContext';
 import {DraftPhoto} from '../../contexts/PhotoPromiseContext/types';
+import {AudioRecording} from '../../sharedTypes/audio.ts';
 import {MapeoProjectApi} from '@mapeo/ipc';
 import {ClientApi} from 'rpc-reflector';
 
@@ -19,7 +15,7 @@ type SavablePhoto = SetRequired<
   'originalUri'
 >;
 
-export function useCreateBlobMutation(opts: {retry?: number} = {}) {
+export function useCreatePhotoBlobMutation(opts: {retry?: number} = {}) {
   const project = useActiveProject();
 
   return useMutation({
@@ -36,6 +32,24 @@ export function useCreateBlobMutation(opts: {retry?: number} = {}) {
         // TODO: DraftPhoto type should probably carry MIME type info that feeds this
         // although backend currently only uses first part of path
         {mimeType: 'image/jpeg'},
+      );
+    },
+  });
+}
+
+export function useCreateAudioRecordingBlobMutation(
+  opts: {retry?: number} = {},
+) {
+  const project = useActiveProject();
+
+  return useMutation({
+    retry: opts.retry,
+    mutationFn: async (recording: AudioRecording) => {
+      return project.$blobs.create(
+        {
+          original: new URL(recording.uri).pathname,
+        },
+        {mimeType: 'audio/mp4'},
       );
     },
   });

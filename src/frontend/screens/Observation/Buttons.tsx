@@ -5,14 +5,14 @@ import {defineMessages, useIntl} from 'react-intl';
 import {useNavigationFromRoot} from '../../hooks/useNavigationWithTypes';
 import {useDeleteObservation} from '../../hooks/server/observations';
 import {Text} from '../../sharedComponents/Text';
-import Share from 'react-native-share';
-import {useAttachmentUrlQueries} from '../../hooks/server/media.ts';
 import {useObservationWithPreset} from '../../hooks/useObservationWithPreset.ts';
-import {formatCoords} from '../../lib/utils.ts';
-import {UIActivityIndicator} from 'react-native-indicators';
-import {convertUrlToBase64} from '../../utils/base64.ts';
-import {useState} from 'react';
 import {usePersistedSettings} from '../../hooks/persistedState/usePersistedSettings.ts';
+import {useAttachmentUrlQueries} from '../../hooks/server/media.ts';
+import React, {useState} from 'react';
+import {convertUrlToBase64} from '../../utils/base64.ts';
+import {formatCoords} from '../../lib/utils.ts';
+import Share from 'react-native-share';
+import {UIActivityIndicator} from 'react-native-indicators';
 
 const m = defineMessages({
   delete: {
