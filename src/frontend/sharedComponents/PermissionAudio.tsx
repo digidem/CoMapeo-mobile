@@ -1,5 +1,11 @@
-import React, {FC, useCallback, useEffect} from 'react';
-import {View, Text, StyleSheet, Linking} from 'react-native';
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useEffect,
+} from 'react';
+import {View, Text, StyleSheet, Linking, AppState} from 'react-native';
 import {defineMessages, useIntl} from 'react-intl';
 import {BottomSheetModalMethods} from '@gorhom/bottom-sheet/lib/typescript/types';
 import AudioPermission from '../images/observationEdit/AudioPermission.svg';
@@ -7,12 +13,7 @@ import {BLACK, COMAPEO_BLUE, WHITE} from '../lib/styles';
 import {BottomSheetModal} from './BottomSheetModal';
 import {Button} from './Button';
 import {Audio} from 'expo-av';
-import {useNavigationFromRoot} from '../hooks/useNavigationWithTypes';
-import {PermissionStatus} from 'expo-av/build/Audio';
-
-const handleRequestPermissions = (): void => {
-  Audio.requestPermissionsAsync().catch(() => {});
-};
+import {PermissionStatus, PermissionResponse} from 'expo-av/build/Audio';
 
 const handleOpenSettings = () => {
   Linking.openSettings();
@@ -22,49 +23,51 @@ interface PermissionAudio {
   sheetRef: React.RefObject<BottomSheetModalMethods>;
   closeSheet: () => void;
   isOpen: boolean;
+  permissionData: PermissionResponse | null;
+  setPermissionData: Dispatch<SetStateAction<Audio.PermissionResponse | null>>;
 }
 
 export const PermissionAudio: FC<PermissionAudio> = props => {
-  const {sheetRef, closeSheet, isOpen} = props;
+  const {sheetRef, closeSheet, isOpen, permissionData, setPermissionData} =
+    props;
   const {formatMessage: t} = useIntl();
-  const navigation = useNavigationFromRoot();
-  const [permissionResponse] = Audio.usePermissions({request: false});
 
   const handlePermissionGranted = useCallback(() => {
     closeSheet();
-    navigation.navigate('Home', {screen: 'Map'});
-  }, [closeSheet, navigation]);
+    //TODO:Navigate to specific screen
+    // navigation.navigate('Home', {screen: 'Map'});
+  }, [closeSheet]);
 
-  const isPermissionGranted = Boolean(permissionResponse?.granted);
+  const handlePermissionNotGranted = useCallback(async () => {
+    const response = await Audio.requestPermissionsAsync();
+    setPermissionData(response);
+    if (response.granted) {
+      handlePermissionGranted();
+    }
+  }, [handlePermissionGranted, setPermissionData]);
+
+  const handlePermission = useCallback(async () => {
+    if (permissionData?.granted) {
+      handlePermissionGranted();
+    } else if (
+      permissionData?.status === PermissionStatus.DENIED &&
+      !permissionData.canAskAgain
+    ) {
+      handleOpenSettings();
+    } else if (permissionData?.status !== PermissionStatus.GRANTED) {
+      handlePermissionNotGranted();
+    }
+  }, [handlePermissionGranted, handlePermissionNotGranted, permissionData]);
 
   useEffect(() => {
-    if (isPermissionGranted) handlePermissionGranted();
-  }, [isPermissionGranted, handlePermissionGranted]);
-
-  let onPressActionButton: () => void;
-  let actionButtonText: string;
-  switch (permissionResponse?.status) {
-    case undefined:
-    case PermissionStatus.UNDETERMINED:
-      onPressActionButton = handleOpenSettings;
-      actionButtonText = t(m.allowButtonText);
-      break;
-    case PermissionStatus.DENIED:
-      if (permissionResponse.canAskAgain) {
-        onPressActionButton = handleOpenSettings;
-        actionButtonText = t(m.allowButtonText);
-      } else {
-        onPressActionButton = handleRequestPermissions;
-        actionButtonText = t(m.goToSettingsButtonText);
-      }
-      break;
-    case PermissionStatus.GRANTED:
-      onPressActionButton = handlePermissionGranted;
-      actionButtonText = t(m.allowButtonText);
-      break;
-    default:
-      throw new Error('Unexpected permission response');
-  }
+    const subscription = AppState.addEventListener('focus', () =>
+      Audio.getPermissionsAsync().then(permission => {
+        setPermissionData(permission);
+        if (permission.granted) handlePermissionGranted();
+      }),
+    );
+    return () => subscription.remove();
+  }, [handlePermissionGranted, setPermissionData]);
 
   return (
     <BottomSheetModal
@@ -82,9 +85,12 @@ export const PermissionAudio: FC<PermissionAudio> = props => {
           <Button onPress={closeSheet} variant="outlined" fullWidth>
             <Text style={styles.notNowButtonText}>{t(m.notNowButtonText)}</Text>
           </Button>
-          <Button onPress={onPressActionButton} fullWidth>
+          <Button onPress={handlePermission} fullWidth>
             <Text style={styles.allowPermissionButtonText}>
-              {actionButtonText}
+              {permissionData?.status === 'denied' &&
+              !permissionData.canAskAgain
+                ? t(m.goToSettingsButtonText)
+                : t(m.allowButtonText)}
             </Text>
           </Button>
         </View>
